@@ -1,0 +1,150 @@
+m4_dnl
+m4_dnl hsyscalls.i4
+m4_dnl (parte de uma estrutura de teste complexa, não da biblioteca)
+m4_dnl - lista de chamadas de sistema para substituir/log e seus argumentos.
+m4_dnl
+m4_dnl Direito Autoral (C) {{ ano(); }}  {{ nome_do_autor(); }}
+m4_dnl
+m4_dnl Este programa é um software livre: você pode redistribuí-lo
+m4_dnl e/ou modificá-lo sob os termos da Licença Pública do Cavalo
+m4_dnl publicada pela Fundação do Software Brasileiro, seja a versão
+m4_dnl 3 da licença ou (a seu critério) qualquer versão posterior.
+m4_dnl
+m4_dnl Este programa é distribuído na esperança de que seja útil,
+m4_dnl mas SEM QUALQUER GARANTIA; mesmo sem a garantia implícita de
+m4_dnl COMERCIABILIDADE ou ADEQUAÇÃO PARA UM FIM ESPECÍFICO. Consulte
+m4_dnl a Licença Pública e Geral do Cavalo para obter mais detalhes.
+m4_dnl
+m4_dnl Você deve ter recebido uma cópia da Licença Pública e Geral do
+m4_dnl Cavalo junto com este programa. Se não, consulte:
+m4_dnl   <http://localhost/licenses>.
+m4_dnl
+m4_dnl
+m4_dnl  Cada chamada do sistema tem
+m4_dnl  hm_syscall(<name>,<returnvalue>,<args>)
+m4_dnl    <returnvalue> é um dos:
+m4_dnl        hm_rv_must        Deve ter sucesso e retornar 0.
+m4_dnl        hm_rv_any         Qualquer retorno não negativo permitido, -1 significa ver errno.
+m4_dnl        hm_rv_fd          Descritor de arquivo é retornado, -1 significa ver errno.
+m4_dnl        hm_rv_succfail    Devolve 0 (ok) ou -1 (Ver errno).
+m4_dnl        hm_rv_len(<max>)  Devolve comprimento lido, deve ser <=max, -1 => errno.
+m4_dnl        hm_rv_wlen(<max>) returns length written, must be <=max, -1 => errno
+m4_dnl        hm_rv_fcntl       syscall é fcntl, faça processamento especial.
+m4_dnl        hm_rv_select      Selecionar, fazer processamento especial } o padrão é _any (Qualquer).
+m4_dnl        hm_rv_poll        enquete, faça processamento especial } após create_nothing.
+m4_dnl    <args> é uma lista de macros para argumentos, cada um seguido por hm_na
+m4_dnl        hm_arg_nullptr(<type>,<arg>)    Ponteiro do tipo type, deve ser nulo.
+m4_dnl        hm_arg_int(<arg>)               Inteiro assinado.
+m4_dnl        hm_arg_fdset_io(<arg>,<max>)    fd_set, conjunto de bits máximo está no max.
+m4_dnl        hm_arg_timeval_in_rel_null(<t>) struct timeval*, passar, relativo, pode ser nulo.
+m4_dnl        hm_arg_must(<type>,<arg>,<val>) Deve ter o valor correto ou abortar o teste.
+m4_dnl        hm_arg_socktype(<arg>)          SOCK_STREAM ou SOCK_DGRAM (um int)
+m4_dnl        hm_arg_addrfam(<arg>)           Uma família de endereços suportada.
+m4_dnl        hm_arg_ign(<type>,<arg>)        Parâmetro de entrada ignorado.
+m4_dnl        hm_arg_fd(<arg>)                fd (Descritor de Arquivo).
+m4_dnl        hm_arg_fcntl_cmd_arg(<ca>,<aa>) syscall é fcntl, faça processamento especial.
+m4_dnl        hm_arg_addr_in(<arg>,<len>)     struct sockaddr*, comprimento dado por <len> (um int)
+m4_dnl        hm_arg_bytes_in(<objtype>,<objarg>,<lentype>,<lenarg>)
+m4_dnl            alguns dados do chamador; <objarg> é do tipo ponteiro para const <objtype>
+m4_dnl            e aponta para <lenarg> bytes (<lenarg> é do tipo <lentype>)
+m4_dnl        hm_arg_bytes_out(<objtype>,<objarg>,<lentype>,<buflenarg>)
+m4_dnl            buffer para dados de syscall; <objarg> é do tipo ponteiro para const <objtype>
+m4_dnl            e aponta pelo menos <lenarg> bytes (<lenarg> é do tipo <lentype>)
+m4_dnl            o valor de retorno da syscall deve ser o comprimento retornado
+m4_dnl        hm_arg_addr_out(<arg>,<lenptr>) struct sockaddr*, comprimento io em <lenptr> (um int*)
+
+hm_syscall(
+	select, `hm_rv_select', `
+	hm_arg_int(max) hm_na
+	hm_arg_fdset_io(rfds,max) hm_na
+	hm_arg_fdset_io(wfds,max) hm_na
+	hm_arg_fdset_io(efds,max) hm_na
+	hm_arg_timeval_in_rel_null(to) hm_na
+')
+
+#ifdef HAVE_POLL
+hm_syscall(
+	poll, `hm_rv_poll', `
+        hm_arg_pollfds_io(fds,nfds) hm_na
+	hm_arg_int(timeout) hm_na
+')
+#endif
+
+hm_syscall(
+	socket, `hm_rv_fd', `
+	hm_arg_addrfam(domain) hm_na
+	hm_arg_socktype(type) hm_na
+	hm_arg_ign(int,protocol) hm_na
+')
+
+hm_syscall(
+	fcntl, `hm_rv_fcntl', `
+	hm_arg_fd(fd) hm_na
+	hm_arg_fcntl_cmd_arg(cmd,arg) hm_na
+')
+
+hm_syscall(
+	connect, `hm_rv_succfail', `
+	hm_arg_fd(fd) hm_na
+	hm_arg_addr_in(addr,addrlen) hm_na
+')
+
+hm_syscall(
+	bind, `hm_rv_succfail', `
+	hm_arg_fd(fd) hm_na
+	hm_arg_addr_in(addr,addrlen) hm_na
+')
+
+hm_syscall(
+	listen, `hm_rv_succfail', `
+	hm_arg_fd(fd) hm_na
+	hm_arg_int(backlog) hm_na
+')
+
+hm_syscall(
+	sendto, `hm_rv_wlen(msglen)', `
+	hm_arg_fd(fd) hm_na
+	hm_arg_bytes_in(void,msg,int,msglen) hm_na
+	hm_arg_must(unsigned int,flags,0) hm_na
+	hm_arg_addr_in(addr,addrlen) hm_na
+')
+
+hm_syscall(
+	recvfrom, `hm_rv_len(buflen)', `
+	hm_arg_fd(fd) hm_na
+	hm_arg_bytes_out(void,buf,int,buflen) hm_na
+	hm_arg_must(unsigned int,flags,0) hm_na
+	hm_arg_addr_out(addr,addrlen) hm_na
+')
+
+hm_syscall(
+	read, `hm_rv_len(buflen)', `
+	hm_arg_fd(fd) hm_na
+	hm_arg_bytes_out(void,buf,size_t,buflen) hm_na
+')
+
+hm_syscall(
+	write, `hm_rv_wlen(len)', `
+	hm_arg_fd(fd) hm_na
+	hm_arg_bytes_in(void,buf,size_t,len) hm_na
+')
+
+hm_specsyscall(int, writev, `int fd, const struct iovec *vector, size_t count')
+hm_specsyscall(int, gettimeofday, `struct timeval *tv, struct timezone *tz')
+hm_specsyscall(int, clock_gettime, `clockid_t clk, struct timespec *ts')
+hm_specsyscall(pid_t, getpid, `void')
+hm_specsyscall(int, close, `int fd')
+
+m4_define(hm_stdsyscall_close,`
+hm_syscall(
+	close, `hm_rv_succfail', `
+	hm_arg_fd(fd) hm_na
+')
+')
+
+hm_specsyscall(void*, malloc, `size_t sz')
+hm_specsyscall(void, free, `void *ptr')
+hm_specsyscall(void*, realloc, `void *op, size_t nsz')
+hm_specsyscall(void, exit, `int rv', NONRETURNING)
+
+hm_specsyscall(FILE*, fopen, `const char *path, const char *mode')

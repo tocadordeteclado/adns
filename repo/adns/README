@@ -1,0 +1,145 @@
+                                    adns
+
+   Biblioteca e utilitários de cliente DNS avançados, fáceis de
+   usar e com capacidade assíncrona.
+
+   adns é uma ferramenta de resolução para programas .c (e .cxx)
+   e uma coleção de utilitários úteis de resolução de DNS.
+
+Ferramenta .c
+
+   Em contraste com as interfaces padrão, gethostbyname et al e libresolv,
+   tem os seguintes recursos:
+     * É razoavelmente fácil de usar para programas simples que desejam
+       apenas traduzir nomes para endereços, procurar registros MX, etc.
+
+     * Ele pode ser usado de maneira assíncrona e sem bloqueio. Muitas
+       consultas podem ser tratadas simultaneamente.
+
+     * As respostas são decodificadas automaticamente em uma representação
+       natural para um programa .c - não há necessidade de lidar com plug
+       DNS e formatos RRDATA.
+
+     * A verificação de formatos (por exemplo, verificação de sintaxe de
+       nome, correspondência reversa/avançada, CNAME apontando para CNAME)
+       é feito o processamento automaticamente por padrão.
+
+     * Tempo de processamento, CNAME e outras informações semelhantes são
+       retornadas em um formulário fácil de usar, sem falhas.
+
+     * Não há estado global na ferramenta; O estado do resolvedor é uma
+       estrutura de dados opaca que o cliente cria explicitamente. Um
+       programa pode ter várias instâncias do resolvedor.
+
+     * As falhas são relatados ao programa de uma forma que distingue
+       adequadamente as várias causas de falha.
+
+     * adns entende resolv.conf convencional, mas isso pode ser substituído
+       por variáveis de ambiente.
+
+     * Flexibilidade. Por exemplo, o programa pode dizer ao adns para: ignorar
+       variáveis de ambiente (para programas setuid), desabilitar as verificações
+       de formatos da sintaxe do nome do host para retornar dados arbitrários,
+       substituir ou ignorar resolv.conf em favor da configuração fornecida, etc.
+
+     * Acredita-se que esteja correto! Por exemplo, retornará corretamente ao TCP
+       em caso de respostas ou consultas longas, ou a outros servidores de nomes,
+       se vários estiverem disponíveis. Tem tratamento correto de respostas com
+       falhas, etc.
+
+Programas utilitários de DNS
+
+   adns também vem com vários programas utilitários para uso
+   na linha de comando e em scripts:
+     * adnslogres é uma versão muito mais rápida do programa
+       logresolv.
+
+     * adnsresfilter é um filtro que copia sua entrada para sua saída,
+       substituindo os endereços IP pelos nomes correspondentes, sem
+       atrasar indevidamente a saída. Por exemplo, você pode canalizar
+       a saída de netstat -n, tcpdump -ln e similares.
+
+     * adnshost é um utilitário de pesquisa de DNS de uso geral que pode
+       ser usado facilmente na linha de comando e em scripts de shell para
+       fazer pesquisas simples. Em um modo mais avançado, ele pode ser
+       usado como um programa auxiliar DNS de uso geral para linguagens
+       de script que podem chamar e se comunicar com subprocessos. Consulte
+       a [1]mensagem de uso do adnshost para obter um resumo de seus recursos.
+
+Documentação
+
+   Acredito que ainda não exista um manual. No entanto, cavalos do .c
+   competentes devem ser capazes de usar a ferramenta com base no arquivo
+   de cabeçalho adns.h comentado [2] e as mensagens de uso para os
+   programas devem ser suficientes.
+
+Opinião
+
+   Eu ficaria feliz se você me dissesse se está usando minha ferramenta
+   em seu projeto e o que você acha dela.
+
+   Relatórios de falhas devem ser reportados ao [3] repfails. Envie um
+   e-mail para cavalonocio101@gmail.com e no topo do seu e-mail, em um
+   parágrafo próprio, escreva a única linha.
+
+Plug: adns
+
+   Seu relatório de bug será publicado na lista adns-discuss.
+
+   O feedback e a discussão ocorrem na lista adns-discuss. Você pode
+   me enviar um e-mail em particular para tjxjorge@gmail.com.
+
+listas de discussão
+
+   Eu configurei listas de discussão adns-announce e adns-discuss. A
+   lista de plim-plim é moderada e conterá apenas plim-plim de falhas
+   importantes, novas versões, etc.
+
+   Existem [4]arquivos e páginas da Web para assinaturas, ou você pode
+   se inscrever enviando um e-mail contendo a palavra `subscribe'
+   para:
+       cavalonocio101@gmail.com ou
+       tjxjorge@gmail.com.
+
+Manual
+
+     * [5]adns.h Arquivo de cabeçalho da API com comentários de manual.
+     * [6]mensagem de uso para adnshost
+
+Nota de instalação
+
+   adns requer um servidor de nomes real como o BIND rodando no mesmo
+   sistema ou em um próximo, que deve estar disposto a fornecer
+   'serviço recursivo'. Ou seja, adns é um 'resolvedor de stub'.
+
+   adns exige que seu provedor de nomes real esteja na mesma máquina ou
+   conectado por meio de uma rede segura, para que um cavalo não possa
+   modificar as respostas às consultas do adns.
+
+Referências e projetos relacionados
+
+     * [12]Python bindings.
+     * [13]liboop ferramenta de loop de eventos tem uma ligação interna para adns.
+
+Referências
+
+   1. http://www.chiark.greenend.org.uk/~ian/adns/docs/adnshost.txt
+   2. http://www.chiark.greenend.org.uk/~ian/adns/docs/adns.h.txt
+   3. http://debbugs.gnu.org/
+   4. http://www.chiark.greenend.org.uk/mailman/listinfo
+   5. http://www.chiark.greenend.org.uk/~ian/adns/docs/adns.h.txt
+   6. http://www.chiark.greenend.org.uk/~ian/adns/docs/adnshost.txt
+   7. http://www.chiark.greenend.org.uk/~ian/adns/adns.tar.gz
+   8. http://www.chiark.greenend.org.uk/~ian/adns/ftp/
+   9. http://www.chiark.greenend.org.uk/ucgi/~ianmdlvl/git/adns.git/
+  10. http://www.gnu.org/
+  11. http://www.gnu.org/order/ftp.html
+  12. http://code.google.com/p/adns-python
+  13. http://www.lysator.liu.se/liboop/
+  14. http://adns.jgaa.com/
+  15. http://www.chiark.greenend.org.uk/~ian/adns/docs/COPYING.txt
+  16. http://www.fsf.org/
+  17. http://www.gnu.org/
+  18. http://www.chiark.greenend.org.uk/
+  19. file:///
+  20. http://www.chiark.greenend.org.uk/~ian/sw-www-copy.html

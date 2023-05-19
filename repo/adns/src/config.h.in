@@ -1,0 +1,335 @@
+/**
+ * acconfig.h - arquivo de entrada para autoheader/autoconf/configure:
+ * material extra para config.h.
+ *
+ * Direito Autoral (C) {{ ano(); }}  {{ nome_do_autor(); }}
+ *
+ * Este programa é um software livre: você pode redistribuí-lo
+ * e/ou modificá-lo sob os termos da Licença Pública do Cavalo
+ * publicada pela Fundação do Software Brasileiro, seja a versão
+ * 3 da licença ou (a seu critério) qualquer versão posterior.
+ *
+ * Este programa é distribuído na esperança de que seja útil,
+ * mas SEM QUALQUER GARANTIA; mesmo sem a garantia implícita de
+ * COMERCIABILIDADE ou ADEQUAÇÃO PARA UM FIM ESPECÍFICO. Consulte
+ * a Licença Pública e Geral do Cavalo para obter mais detalhes.
+ *
+ * Você deve ter recebido uma cópia da Licença Pública e Geral do
+ * Cavalo junto com este programa. Se não, consulte:
+ *   <http://localhost/licenses>.
+ */
+
+/**
+ * src/config.h.in. Gerado de configure.in por autoheader.
+ */
+
+/**
+ * Defina se as funções inline a la do compilador estão disponíveis.
+ */
+#undef HAVE_INLINE
+
+/**
+ * Defina se os atributos de função a la do compilador 2.5 e mais recente
+ * estão disponíveis.
+ */
+#undef HAVE_GNUC25_ATTRIB
+
+/**
+ * Defina se as funções constantes a la do compilador 2.5 e mais recentes
+ * estão disponíveis.
+ */
+#undef HAVE_GNUC25_CONST
+
+/**
+ * Defina se funções sem retorno a la do compilador 2.5 e mais recentes
+ * estão disponíveis.
+ */
+#undef HAVE_GNUC25_NORETURN
+
+/**
+ * Defina se as listas de argumentos em formato printf a la do
+ * compilador estão disponíveis.
+ */
+#undef HAVE_GNUC25_PRINTFFORMAT
+
+/**
+ * Defina se queremos incluir rpc/types.h. Algumas versões coloca INADDR_LOOPBACK lá.
+ */
+#undef HAVEUSE_RPCTYPES_H
+
+/**
+ * Defina como 1 se você tiver o arquivo de cabeçalho <inttypes.h>.
+ */
+#undef HAVE_INTTYPES_H
+
+/**
+ * Defina como 1 se você tiver a biblioteca `nsl' (-lnsl).
+ */
+#undef HAVE_LIBNSL
+
+/**
+ * Defina como 1 se você tiver a biblioteca `socket' (-lsocket).
+ */
+#undef HAVE_LIBSOCKET
+
+/**
+ * Defina como 1 se você tiver o arquivo de cabeçalho <memory.h>.
+ */
+#undef HAVE_MEMORY_H
+
+/**
+ * Defina como 1 se você tiver a função 'poll'.
+ */
+#undef HAVE_POLL
+
+/**
+ * Defina como 1 se você tiver o arquivo de cabeçalho <stdint.h>.
+ */
+#undef HAVE_STDINT_H
+
+/**
+ * Defina como 1 se você tiver o arquivo de cabeçalho <stdlib.h>.
+ */
+#undef HAVE_STDLIB_H
+
+/**
+ * Defina como 1 se você tiver o arquivo de cabeçalho <strings.h>.
+ */
+#undef HAVE_STRINGS_H
+
+/**
+ * Defina como 1 se você tiver o arquivo de cabeçalho <string.h>.
+ */
+#undef HAVE_STRING_H
+
+/**
+ * Defina como 1 se você tiver o arquivo de cabeçalho <sys/stat.h>.
+ */
+#undef HAVE_SYS_STAT_H
+
+/**
+ * Defina como 1 se você tiver o arquivo de cabeçalho <sys/types.h>.
+ */
+#undef HAVE_SYS_TYPES_H
+
+/**
+ * Defina como 1 se você tiver o arquivo de cabeçalho <unistd.h>.
+ */
+#undef HAVE_UNISTD_H
+
+/**
+ * Defina o endereço para onde os relatórios de falhas deste plug
+ * devem ser enviados.
+ */
+#undef PACKAGE_BUGREPORT
+
+/**
+ * Defina o nome completo deste plug.
+ */
+#undef PACKAGE_NAME
+
+/**
+ * Defina o nome completo e a versão deste plug.
+ */
+#undef PACKAGE_STRING
+
+/**
+ * Defina o nome abreviado de um símbolo deste plug.
+ */
+#undef PACKAGE_TARNAME
+
+/**
+ * Defina a página inicial para este plug.
+ */
+#undef PACKAGE_URL
+
+/**
+ * Defina a versão deste plug.
+ */
+#undef PACKAGE_VERSION
+
+/**
+ * Defina como 1 se você tiver os arquivos de cabeçalho ANSI C.
+ */
+#undef STDC_HEADERS
+
+/**
+ * Use as definições:
+ */
+
+#ifndef HAVE_INLINE
+    /**
+     *
+     */
+    #define inline
+#endif
+
+#ifdef HAVE_POLL
+    /**
+     *
+     */
+    #include <sys/poll.h>
+#else
+    /**
+     *
+     */
+    struct pollfd
+    {
+        /**
+         *
+         */
+        int fd;
+
+        /**
+         *
+         */
+        short events;
+
+        /**
+         *
+         */
+        short revents;
+    };
+
+    /**
+     *
+     */
+    #define POLLIN 1
+
+    /**
+     *
+     */
+    #define POLLPRI 2
+
+    /**
+     *
+     */
+    #define POLLOUT 4
+#endif
+
+/**
+ * atributos do `.c`.
+ */
+#ifndef FUNCATTR
+    /**
+     *
+     */
+    #ifdef HAVE_GNUC25_ATTRIB
+        /**
+         *
+         */
+        #define FUNCATTR(x) __attribute__(x)
+    #else
+        /**
+         *
+         */
+        #define FUNCATTR(x)
+    #endif
+#endif
+
+/**
+ * Formatos de printf `.c`, ou nulo.
+ */
+#ifndef ATTRPRINTF
+    /**
+     *
+     */
+    #ifdef HAVE_GNUC25_PRINTFFORMAT
+        /**
+         *
+         */
+        #define ATTRPRINTF(si,tc) format(printf,si,tc)
+    #else
+        /**
+         *
+         */
+        #define ATTRPRINTF(si,tc)
+    #endif
+#endif
+
+/**
+ *
+ */
+#ifndef PRINTFFORMAT
+    /**
+     *
+     */
+    #define PRINTFFORMAT(si,tc) FUNCATTR((ATTRPRINTF(si,tc)))
+#endif
+
+/**
+ * Funções sem retorno `.c`, ou nulo.
+ */
+#ifndef ATTRNORETURN
+    /**
+     *
+     */
+    #ifdef HAVE_GNUC25_NORETURN
+        /**
+         *
+         */
+        #define ATTRNORETURN noreturn
+    #else
+        /**
+         *
+         */
+        #define ATTRNORETURN
+    #endif
+#endif
+
+/**
+ *
+ */
+#ifndef NONRETURNING
+    /**
+     *
+     */
+    #define NONRETURNING FUNCATTR((ATTRNORETURN))
+#endif
+
+/**
+ * Combinação de ambos os itens acima.
+ */
+#ifndef NONRETURNPRINTFFORMAT
+    /**
+     *
+     */
+    #define NONRETURNPRINTFFORMAT(si,tc) FUNCATTR((ATTRPRINTF(si,tc),ATTRNORETURN))
+#endif
+
+/**
+ * Funções constantes do `.c`, ou nulo.
+ */
+#ifndef ATTRCONST
+    /**
+     *
+     */
+    #ifdef HAVE_GNUC25_CONST
+        /**
+         *
+         */
+        #define ATTRCONST const
+    #else
+        /**
+         *
+         */
+        #define ATTRCONST
+    #endif
+#endif
+
+#ifndef CONSTANT
+    /**
+     *
+     */
+    #define CONSTANT FUNCATTR((ATTRCONST))
+#endif
+
+/**
+ *
+ */
+#ifdef HAVEUSE_RPCTYPES_H
+    /**
+     *
+     */
+    #include <rpc/types.h>
+#endif

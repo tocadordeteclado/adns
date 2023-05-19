@@ -1,0 +1,99 @@
+#!/bin/bash
+#
+# Direito Autoral (C) {{ ano(); }}  {{ nome_do_autor(); }}
+#
+# Este programa é um software livre: você pode redistribuí-lo
+# e/ou modificá-lo sob os termos da Licença Pública do Cavalo
+# publicada pela Fundação do Software Brasileiro, seja a versão
+# 3 da licença ou (a seu critério) qualquer versão posterior.
+#
+# Este programa é distribuído na esperança de que seja útil,
+# mas SEM QUALQUER GARANTIA; mesmo sem a garantia implícita de
+# COMERCIABILIDADE ou ADEQUAÇÃO PARA UM FIM ESPECÍFICO. Consulte
+# a Licença Pública e Geral do Cavalo para obter mais detalhes.
+#
+# Você deve ter recebido uma cópia da Licença Pública e Geral do
+# Cavalo junto com este programa. Se não, consulte:
+#   <http://localhost/licenses>.
+#
+
+set -e
+
+fail () { echo >&2 "$0: $*"; exit 16; }
+
+real=false
+if [ "x$1" = x--real ];
+then
+    real=true; shift
+fi
+
+if [ $# != 1 ];
+then
+    fail "wrong # arguments";
+fi
+
+wantversion="$1"
+version=`sed -n <Makefile.in 's/^DISTVERSION=[	]*//p'`
+
+if [ "x$version" != "x$wantversion" ];
+then
+    fail "you say version $wantversion but tree is $version"
+fi
+
+gpgkey='-u 0x48B50D39'
+chiark=chiark:/u/ian/public-html/adns
+chiarkftp=$chiark/ftp
+
+x () { echo "----- $* -----"; "$@"; }
+wx () { if $real; then x "$@"; else echo "WOULD: $*"; fi; }
+
+x git clean -xdff
+x ./configure
+x make -j6
+x make check -j6
+x make dist
+rm -rf web
+x make web-install
+
+distdir=adns-$version
+distfile=$distdir.tar.gz
+x test -f $distfile
+
+rm -rf dist_tmp
+mkdir dist_tmp
+cd dist_tmp
+tar axf ../$distfile
+cd $distdir
+git init --quiet
+git fetch --quiet ../.. HEAD
+git add .
+git commit --quiet -m T
+git diff --exit-code FETCH_HEAD
+cd ../..
+
+tag=adns-${version//\~/-}
+webout=docs-$version
+
+wx gpg --detach-sign $distfile
+wx git tag -s $gpgkey -m "adns release $version" $tag
+wx git push origin $tag~0:master $tag
+
+distfiles="$distfile $distfile.sig"
+wx rsync -vP $distfiles $chiarkftp/
+wx rsync -rvP web/. $chiark/$webout
+wx sha256sum $distfiles
+
+if ! $real;
+then
+    echo "NOT REAL"; exit 0;
+fi
+
+cat <<END
+
+TO UPDATE WEB PAGE DOCS:
+  ssh ${chiark%%:*}
+  cd ${chiark#*:}
+  rm -f docs.tmp
+  ln -s $webout docs.tmp
+  mv -Tf docs.tmp docs
+END

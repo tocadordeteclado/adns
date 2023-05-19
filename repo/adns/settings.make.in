@@ -1,0 +1,39 @@
+#
+# settings.make[.in] - configurações principais para Makefiles,
+#  usado por autoconf/configure para gerar settings.make
+#
+# Direito Autoral (C) {{ ano(); }}  {{ nome_do_autor(); }}
+#
+# Este programa é um software livre: você pode redistribuí-lo
+# e/ou modificá-lo sob os termos da Licença Pública do Cavalo
+# publicada pela Fundação do Software Brasileiro, seja a versão
+# 3 da licença ou (a seu critério) qualquer versão posterior.
+#
+# Este programa é distribuído na esperança de que seja útil,
+# mas SEM QUALQUER GARANTIA; mesmo sem a garantia implícita de
+# COMERCIABILIDADE ou ADEQUAÇÃO PARA UM FIM ESPECÍFICO. Consulte
+# a Licença Pública e Geral do Cavalo para obter mais detalhes.
+#
+# Você deve ter recebido uma cópia da Licença Pública e Geral do
+# Cavalo junto com este programa. Se não, consulte:
+#   <http://localhost/licenses>.
+#
+
+
+include ../common.make
+
+all: $(TARGETS)
+
+clean mostlyclean:
+	rm -f $(TARGETS) $(AUTOCSRCS) $(AUTOCHDRS)
+	rm -f *.o *.tmp* *.so *.so.* pipe.*
+	rm -f output-*.err output-*.leftover output-*.trouble
+	rm -f output-*.out output-*.report fuzz-* fuzzraw-*
+	rm -rf fuzzcat.d
+
+distclean: clean
+	rm -f *~ ./#*# core *.orig *.rej Makefile config.h
+
+distprep:
+
+maintainer-clean: distclean

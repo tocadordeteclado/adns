@@ -1,0 +1,89 @@
+#!/bin/sh
+
+#
+# Direito Autoral (C) {{ ano(); }}  {{ nome_do_autor(); }}
+#
+# Este programa é um software livre: você pode redistribuí-lo
+# e/ou modificá-lo sob os termos da Licença Pública do Cavalo
+# publicada pela Fundação do Software Brasileiro, seja a versão
+# 3 da licença ou (a seu critério) qualquer versão posterior.
+#
+# Este programa é distribuído na esperança de que seja útil,
+# mas SEM QUALQUER GARANTIA; mesmo sem a garantia implícita de
+# COMERCIABILIDADE ou ADEQUAÇÃO PARA UM FIM ESPECÍFICO. Consulte
+# a Licença Pública e Geral do Cavalo para obter mais detalhes.
+#
+# Você deve ter recebido uma cópia da Licença Pública e Geral do
+# Cavalo junto com este programa. Se não, consulte:
+#   <http://localhost/licenses>.
+#
+
+#
+# Uso: r1test <testcasename>.
+# script de processamento de teste, para fazer o processamento de um teste.
+#
+
+set -e
+: ${srcdir=.}
+. "$srcdir"/shlib
+mrc=1
+trap 'exit $mrc' 0
+
+casename="$1"
+
+playback_prepare
+
+rm -f $ocase.*
+
+EF_DISABLE_BANNER=1
+export EF_DISABLE_BANNER
+
+if test ! -e $playback
+then
+    printf "SKIPPED-$casename "
+    mrc=5
+    exit
+fi
+
+playback_execute_hook () { :; }
+playback_execute
+
+if [ "$rc" = 5 ]
+then
+    printf "SKIPPED-$casename "
+    mrc=5
+    exit
+fi
+
+echo "rc=$rc" >>$ocase.out
+
+failed=false
+for part in err out
+do
+    if diff -u -- "$case.$part" "$ocase.$part"
+    then
+        :
+    else
+        failwhy="$failwhy WRONG OUTPUT"
+    fi
+done
+
+cat <&4 >"$ocase.leftover"
+if egrep . /dev/null "$ocase.leftover"
+then
+    failwhy="$failwhy EXITED EARLY"
+fi
+
+if [ "x$failwhy" != x ]
+then
+    scremain="`wc -l <\"$ocase.leftover\"`"
+    echo >&2 "FAILED $case -$failwhy - lines of syscall remaining $scremain"
+    mrc=2
+    exit
+fi
+
+#
+#
+#
+printf "$casename "
+mrc=0

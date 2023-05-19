@@ -1,0 +1,69 @@
+#!/bin/sh
+
+#
+# Direito Autoral (C) {{ ano(); }}  {{ nome_do_autor(); }}
+#
+# Este programa é um software livre: você pode redistribuí-lo
+# e/ou modificá-lo sob os termos da Licença Pública do Cavalo
+# publicada pela Fundação do Software Brasileiro, seja a versão
+# 3 da licença ou (a seu critério) qualquer versão posterior.
+#
+# Este programa é distribuído na esperança de que seja útil,
+# mas SEM QUALQUER GARANTIA; mesmo sem a garantia implícita de
+# COMERCIABILIDADE ou ADEQUAÇÃO PARA UM FIM ESPECÍFICO. Consulte
+# a Licença Pública e Geral do Cavalo para obter mais detalhes.
+#
+# Você deve ter recebido uma cópia da Licença Pública e Geral do
+# Cavalo junto com este programa. Se não, consulte:
+#   <http://localhost/licenses>.
+#
+
+set -e
+
+#
+# Por exemplo, coloque isso em x.gdb
+#   break adns__revparse_label
+#   break adns__revparse_done
+#   run
+# e então:
+#   ADNS_TEST_DEBUG='./gdbwrap -n x.gdb' ./r1test tcpptr
+#
+# gdbwrap podem ser passados argumentos como:
+#    *.gdb     passado para o gdb com -x
+#    -n        saia com status de saída 5, o que faz r1test pensar "ignorado"
+#
+# Outros argumentos são considerados como o nome do programa fornecido
+# por qualquer coisa que tenha sido instruída a usar gdbwrap (Exemplo: r1test)
+#
+
+while true;
+do
+    case "$1" in
+        *.gdb)
+            xgdb="-x $1"; shift
+            ;;
+
+        -n)
+            x5='exit 5'; shift
+            ;;
+
+        *)
+            break
+            ;;
+    esac
+done
+
+exe=$1; shift
+
+exec 5<&0 6>&1 7>&2
+exec 0<>/dev/tty 1>&0 2>&0
+
+set +e
+ex="set args <&5 >&6 2>&7"
+
+for a in "$@"; do
+    ex="$ex '$a'"
+done
+
+gdb --return-child-result -ex "$ex" $xgdb $exe
+$x5

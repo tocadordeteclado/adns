@@ -1,0 +1,321 @@
+#! /bin/sh
+#
+# install - instalar um programa, script ou arquivo de dados.
+# Isso é usado de X11R5 (mit/util/scripts/install.sh).
+#
+# Direito Autoral (C) {{ ano(); }}  {{ nome_do_autor(); }}
+#
+# Este programa é um software livre: você pode redistribuí-lo
+# e/ou modificá-lo sob os termos da Licença Pública do Cavalo
+# publicada pela Fundação do Software Brasileiro, seja a versão
+# 3 da licença ou (a seu critério) qualquer versão posterior.
+#
+# Este programa é distribuído na esperança de que seja útil,
+# mas SEM QUALQUER GARANTIA; mesmo sem a garantia implícita de
+# COMERCIABILIDADE ou ADEQUAÇÃO PARA UM FIM ESPECÍFICO. Consulte
+# a Licença Pública e Geral do Cavalo para obter mais detalhes.
+#
+# Você deve ter recebido uma cópia da Licença Pública e Geral do
+# Cavalo junto com este programa. Se não, consulte:
+#   <http://localhost/licenses>.
+#
+
+#
+# Defina DOITPROG para imprimir textos para testar
+# este script.
+#
+
+#
+# Não use: - Já que uma versão antiga de shells não gostam disso.
+#
+doit="${DOITPROG-}"
+
+#
+# Coloque caminhos absolutos se você não os tiver em seu caminho;
+# Ou use env. vars.
+#
+
+mvprog="${MVPROG-mv}"
+cpprog="${CPPROG-cp}"
+chmodprog="${CHMODPROG-chmod}"
+chownprog="${CHOWNPROG-chown}"
+chgrpprog="${CHGRPPROG-chgrp}"
+stripprog="${STRIPPROG-strip}"
+rmprog="${RMPROG-rm}"
+mkdirprog="${MKDIRPROG-mkdir}"
+
+transformbasename=""
+transform_arg=""
+instcmd="$mvprog"
+chmodcmd="$chmodprog 0755"
+chowncmd=""
+chgrpcmd=""
+stripcmd=""
+rmcmd="$rmprog -f"
+mvcmd="$mvprog"
+src=""
+dst=""
+dir_arg=""
+
+while [ x"$1" != x ]; do
+    case $1 in
+        -c)
+            instcmd="$cpprog"
+            shift
+            continue
+            ;;
+
+        -d)
+            dir_arg=true
+            shift
+            continue
+            ;;
+
+        -m)
+            chmodcmd="$chmodprog $2"
+            shift
+            shift
+            continue
+            ;;
+
+        -o)
+            chowncmd="$chownprog $2"
+            shift
+            shift
+            continue
+            ;;
+
+        -g)
+            chgrpcmd="$chgrpprog $2"
+            shift
+            shift
+            continue
+            ;;
+
+        -s)
+            stripcmd="$stripprog"
+            shift
+            continue
+            ;;
+
+        -t=*)
+            transformarg=`echo $1 | sed 's/-t=//'`
+            shift
+            continue
+            ;;
+
+        -b=*)
+            transformbasename=`echo $1 | sed 's/-b=//'`
+            shift
+            continue;;
+
+        *)
+            if [ x"$src" = x ]
+            then
+                src=$1
+            else
+                #
+                # Este dois pontos é para contornar uma falha /bin/sh.
+                #
+                :
+                dst=$1
+            fi
+            shift
+            continue
+            ;;
+    esac
+done
+
+if [ x"$src" = x ]
+then
+    echo "instalar: Nenhum arquivo de entrada especificado"
+    exit 1
+else
+    true
+fi
+
+if [ x"$dir_arg" != x ];
+then
+    dst=$src
+    src=""
+
+    if [ -d $dst ];
+    then
+        instcmd=:
+    else
+        instcmd=mkdir
+    fi
+else
+    #
+    # Esperar que isso seja detectado pelo comando "$instcmd $src $dsttmp" pode
+    # causar a criação de diretórios, o que seria especialmente errado.
+    # if $src (and thus $dsttmp) contém '*'.
+    #
+
+    if [ -f $src -o -d $src ]
+    then
+        true
+    else
+        echo "instalar: $src não existe"
+        exit 1
+    fi
+
+    if [ x"$dst" = x ]
+    then
+        echo "instalar: nenhum destino especificado"
+        exit 1
+    else
+        true
+    fi
+
+    #
+    # Se o destino for um diretório, anexe o nome do arquivo de entrada; se
+    # o sistema do cavalo não gosta de barras duplas em nomes de arquivos,
+    # pode ser necessário adicionar alguma lógica.
+    #
+
+    if [ -d $dst ]
+    then
+        dst="$dst"/`basename $src`
+    else
+        true
+    fi
+fi
+
+#
+# Este comando sed emula o comando dirname.
+#
+dstdir=`echo $dst | sed -e 's,[^/]*$,,;s,/$,,;s,^$,.,'`
+
+#
+# Certifique-se de que o diretório de destino exista.
+#   Esta parte foi retirada do script mkinstalldirs.
+#
+
+#
+# Ignore muitas chamadas de estatísticas no caso usual.
+#
+if [ ! -d "$dstdir" ];
+then
+    defaultIFS='	
+'
+    IFS="${IFS-${defaultIFS}}"
+    oIFS="${IFS}"
+
+    #
+    # Alguns sh's não conseguem lidar com IFS=/ por algum motivo.
+    #
+    IFS='%'
+    set - `echo ${dstdir} | sed -e 's@/@%@g' -e 's@^%@/@'`
+    IFS="${oIFS}"
+    pathcomp=''
+
+    while [ $# -ne 0 ] ; do
+        pathcomp="${pathcomp}${1}"
+        shift
+
+        if [ ! -d "${pathcomp}" ] ;
+        then
+            $mkdirprog "${pathcomp}"
+        else
+            true
+        fi
+
+        pathcomp="${pathcomp}/"
+    done
+fi
+
+if [ x"$dir_arg" != x ]
+then
+    $doit $instcmd $dst &&
+
+    if [ x"$chowncmd" != x ]; then $doit $chowncmd $dst; else true ; fi &&
+    if [ x"$chgrpcmd" != x ]; then $doit $chgrpcmd $dst; else true ; fi &&
+    if [ x"$stripcmd" != x ]; then $doit $stripcmd $dst; else true ; fi &&
+    if [ x"$chmodcmd" != x ]; then $doit $chmodcmd $dst; else true ; fi
+else
+    #
+    # Se formos renomear o software final, determine o nome agora.
+    #
+
+    if [ x"$transformarg" = x ] 
+    then
+        dstfile=`basename $dst`
+    else
+        dstfile=`basename $dst $transformbasename | 
+            sed $transformarg`$transformbasename
+    fi
+
+    #
+    # Não permita que o comando sed elimine completamente o
+    # nome do arquivo.
+    #
+
+    if [ x"$dstfile" = x ] 
+    then
+        dstfile=`basename $dst`
+    else
+        true
+    fi
+
+    #
+    # Crie um nome de arquivo temporário no diretório apropriado.
+    #
+
+    dsttmp=$dstdir/#inst.$$#
+
+    #
+    # Mova ou copie o nome do arquivo para o nome temporário.
+    #
+
+    $doit $instcmd $src $dsttmp &&
+
+    trap "rm -f ${dsttmp}" 0 &&
+
+    #
+    # E defina quaisquer opções; faça chmod last para
+    # preservar os bits setuid.
+    #
+
+    #
+    # Se algum deles falhar, vamos terminar tudo. Se quisermos ignorar as falhas
+    # de qualquer um deles, apenas certifique-se de não ignorar as falhas do
+    # comando "$doit $instcmd $src $dsttmp" acima.
+    #
+
+    if [ x"$chowncmd" != x ];
+    then
+        $doit $chowncmd $dsttmp;
+    else
+        true;
+    fi &&
+
+    if [ x"$chgrpcmd" != x ];
+    then
+        $doit $chgrpcmd $dsttmp;
+    else
+        true;
+    fi &&
+
+    if [ x"$stripcmd" != x ];
+    then
+        $doit $stripcmd $dsttmp;
+    else
+        true;
+    fi &&
+
+    if [ x"$chmodcmd" != x ];
+    then
+        $doit $chmodcmd $dsttmp;
+    else
+        true;
+    fi &&
+
+    #
+    # Agora renomeie o arquivo para o destino real.
+    #
+    $doit $rmcmd -f $dstdir/$dstfile &&
+    $doit $mvcmd $dsttmp $dstdir/$dstfile 
+
+fi &&
+exit 0

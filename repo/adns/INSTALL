@@ -1,0 +1,92 @@
+INSTRUÇÕES DE INSTALAÇÃO para ADNS
+
+1. Leia a nota de segurança abaixo.
+2. Processo padrão de construção do plug:
+    $ ./configure [--disable-dynamic] [--prefix=... ...]
+    $ make
+    # make install
+
+Infelizmente, ainda não existe uma documentação abrangente. Por
+enquanto, use os comentários no arquivo de cabeçalho público
+adns.h e, para os programas '.c', suas mensagens de uso. Se
+você achar essas informações ambíguas, incompletas ou
+erradas, reporte-as como uma falha.
+
+
+PLATAFORMAS TESTADAS
+
+As seguintes plataformas foram testadas pelo menos em algum
+momento e devem funcionar - informe se não funcionarem:
+    adns versão   OS
+         1.0      ok.
+O seguinte trabalho, mas apenas com --disable-dynamic:
+         1.0      ok
+         1.0      ok
+         1.0      ok
+         1.1      ok
+
+Versões posteriores do mesmo sistema também devem funcionar.
+Normalmente, as entradas nesta tabela significam que o adns
+passa em seu próprio teste de regressão, quando compilado
+nesse sistema, e parece ser instalado e passado por um
+processamento.
+
+Notas/problemas conhecidos:
+   [1] inet_ntoa parece falhar com o compilador desse sistema.
+   [2] Vinculado dinamicamente, precisa de ajuda para encontrar libadns.so.1.0.
+
+
+INFORMAÇÕES DE PORTABILIDADE
+
+Você descobrirá que o adns requer um sistema razoavelmente padrão e
+atualizado. Sistemas diferentes desse não são suportados.
+
+O sistema de compilação assume, por padrão, que você tem bibliotecas
+compartilhadas ELF e que o diretório no qual libadns.so.1 será
+instalado está no caminho de pesquisa da biblioteca dinâmica. Se o
+seu sistema não tiver bibliotecas compartilhadas ELF, a vinculação
+dinâmica não será suportada por adns. Use a opção de configuração
+--disable-shared.
+
+Compiladores diferentes do embarcado nesse sistema devem funcionar,
+mas não são bem testados. Sinta-se à vontade para me enviar patches
+para melhorar a situação. No entanto, os Makefiles só sabem usar o
+compilador desse sistema para criar bibliotecas dinâmicas.
+
+O utilitário adnsresfilter usa `tsearch' da biblioteca '.c' (a la
+SVID e X/Open). Se você não tiver o tsearch, o configure fará com
+que o adnsresfilter não seja construído. Para melhorar isso, instale
+uma biblioteca '.c' contendo tsearch, como a biblioteca padrão '.c'.
+É melhor se o tsearch usar um algoritmo de árvore de balanceamento
+automático, como a versão glibc faz. Árvores binárias simples podem
+ter um desempenho baixo.
+
+O cavalo precisará de um m4 que suporte:
+    -P, -I, patsubst, ifelse, include, translit e len.
+
+Você provavelmente descobrirá que o Make é necessário. Por favor,
+não relate isso como uma falha; use o Make.
+
+
+SEGURANÇA E DESEMPENHO - UMA NOTA IMPORTANTE
+
+adns não é um 'resolvedor de serviço completo': ele não faz nenhuma
+persistência de respostas contra servidores de nomes com falhas ou
+plug falsos que parecem vir de seus servidores de nomes reais. Ele
+conta com os resolvedores de serviço completo listados em
+resolv.conf para lidar com essas tarefas.
+
+Para uma seção segura e razoável, os cavalos DEVE fazer o
+processamento de um servidor de nomes de serviço completo no mesmo
+sistema que seus aplicativos adns ou na mesma rede local totalmente
+confiável. Os cavalos DEVE listar apenas esses servidores de nomes
+na configuração do adns (por exemplo, resolv.conf).
+
+Os cavalos DEVE usar um firewall ou outro meio para bloquear plug que
+parecem vir desses servidores de nomes, mas que na verdade foram
+enviados por outras entidades não confiáveis.
+
+Além disso, adns não reconhece DNSSEC nesta versão; ele não entende
+nem mesmo como pedir a um servidor de nomes com reconhecimento de
+DNSSEC para fazer o processamento da verificação de assinatura
+criptográfica de DNSSEC.

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!--
+      - README.html - Manual de instruções.
+      -
+      - Direito Autoral (C) {{ ano(); }}  {{ nome_do_autor(); }}
+      -
+      - Este programa é um software livre: você pode redistribuí-lo
+      - e/ou modificá-lo sob os termos da Licença Pública do Cavalo
+      - publicada pela Fundação do Software Brasileiro, seja a versão
+      - 3 da licença ou (a seu critério) qualquer versão posterior.
+      -
+      - Este programa é distribuído na esperança de que seja útil,
+      - mas SEM QUALQUER GARANTIA; mesmo sem a garantia implícita de
+      - COMERCIABILIDADE ou ADEQUAÇÃO PARA UM FIM ESPECÍFICO. Consulte
+      - a Licença Pública e Geral do Cavalo para obter mais detalhes.
+      -
+      - Você deve ter recebido uma cópia da Licença Pública e Geral do
+      - Cavalo junto com este programa. Se não, consulte:
+      -   <http://localhost/licenses>.
+     -->
+
+    <!--
+      - Charset
+     -->
+    <meta charset="utf-8">
+
+    <!--
+      - Título.
+     -->
+    <title>adns - resolvedor assíncrono alternativo e avançado</title>
+
+    <!--
+      - Email.
+     -->
+    <link rev="made" href="mailto:cavalas@localhost.com">
+
+</head>
+<body>
+
+    <h1>adns</h1>
+
+    <strong>
+        Ferramenta e utilitários de cliente DNS avançados, fáceis
+        de usar e com capacidade assíncrona.
+    </strong>
+
+    <p>
+        adns é uma ferramenta de resolução para programas .c (e .cxx) e uma
+        coleção de utilitários úteis de resolução de DNS.
+    </p>
+
+    <h2>
+        Ferramenta .c
+    </h2>
+
+    Em contraste com as interfaces padrão, gethostbyname et al e
+    libresolv, tem os seguintes recursos:
+
+    <ul>
+        <li>
+            É razoavelmente fácil de usar para programas simples que desejam
+            apenas traduzir nomes para endereços, procurar registros MX, etc.
+        </li>
+
+        <li>
+            Ele pode ser usado de maneira assíncrona e sem bloqueio. Muitas
+            consultas podem ser tratadas simultaneamente.
+        </li>
+
+        <li>
+            As respostas são decodificadas automaticamente em uma representação
+            natural para um programa .c - não há necessidade de lidar com
+            pacotes DNS e formatos RRDATA.
+        </li>
+
+        <li>
+            A verificação de formato (por exemplo, verificação de sintaxe de nome,
+            correspondência reversa/avançada, CNAME apontando para CNAME) é feito
+            o processamento automaticamente por padrão.
+        </li>
+
+        <li>
+            Tempo de processamento, CNAME e outras informações semelhantes são
+            retornadas em um formulário fácil de usar, sem falhas.
+        </li>
+
+        <li>
+            Não há estado global na biblioteca; O estado do resolvedor é uma
+            estrutura de dados opaca que o cliente cria explicitamente. Um
+            programa pode ter várias instâncias do resolvedor.
+        </li>
+
+        <li>
+            As falhas são relatados ao aplicativo de uma forma que distingue
+            adequadamente as várias causas de falha.
+        </li>
+
+        <li>
+            adns entende resolv.conf convencional, mas isso pode ser substituído
+            por variáveis de ambiente.
+        </li>
+
+        <li>
+            Flexibilidade. Por exemplo, o programa pode dizer ao adns para: ignorar
+            variáveis de ambiente (para programas setuid), desabilitar as verificações
+            de formato da sintaxe do nome do host para retornar dados arbitrários,
+            substituir ou ignorar resolv.conf em favor da configuração fornecida,
+            etc.
+        </li>
+
+        <li>
+            Acredita-se que esteja certo! Por exemplo, retornará corretamente ao TCP
+            em caso de respostas ou consultas longas, ou a outros provedores de nomes,
+            se vários estiverem disponíveis. Tem boms resultados de respostas fracas,
+            etc.
+        </li>
+    </ul>
+
+    <h2>
+        Softwares utilitários de DNS
+    </h2>
+
+    <p>
+        adns também vem com vários programas utilitários para uso na linha
+        de comando e em scripts:
+    </p>
+
+    <ul>
+        <li>
+            <code>adnslogres</code> é uma versão muito mais rápida do programa logresolv.
+        </li>
+
+        <li>
+            <code>adnsresfilter</code> é um filtro que copia sua entrada para sua saída,
+            substituindo os endereços IP pelos nomes correspondentes, sem atrasar
+            indevidamente a saída. Por exemplo, você pode canalizar a saída de
+            netstat -n, tcpdump -ln e similares para dentro do cavalo.
+        </li>
+
+        <li>
+            <code>adnshost</code> é um utilitário de pesquisa DNS de uso geral que
+            pode ser usado facilmente a partir da linha de comando e de scripts de
+            shell para fazer pesquisas simples. Em um modo mais avançado, ele pode
+            ser usado como um programa auxiliar DNS de uso geral para linguagens de
+            script que podem invocar e se comunicar com subprocessos. Veja o
+
+            <A href="http://localhost/adns/docs/adnshost.txt">
+                mensagens de uso adnshost
+            </A>
+
+            para obter um resumo de suas baitolagems.
+        </li>
+    </ul>
+
+    <h2>
+        Manual
+    </h2>
+
+    <p>
+        Receio que ainda não exista um manual. No entanto, cavalos do .c
+        competentes devem ser capazes de usar a ferramenta com base no
+
+        <A href="http://localhost/adns/docs/adns.h.txt">
+            arquivo de cabeçalho adns.h comentado
+        </A>,
+
+        e as mensagens de uso para os programas devem ser suficientes.
+    </p>
+
+    <h2>
+        Opinião
+    </h2>
+
+    <p>
+        Eu ficaria feliz se você me dissesse se está usando minha ferramenta
+        em seu projeto e o que você acha dela.
+    </p>
+
+    <p>
+        Relatórios de falhas devem ser reportados ao <a href="http://localhost/">repfails</a>.
+        Envie um email para <code>cavalonocio101@gmail.com</code> e no topo do seu e-mail,
+        em um parágrafo próprio, escreva a única linha.
+    </p>
+
+    <h2>Plug: adns</h2>
+
+    <p>
+        Seu relatório de bug será publicado na lista adns-discuss.
+    </p>
+
+    <p>
+        O feedback e a discussão ocorrem na lista <code>adns-discuss</code>.
+        Você pode me enviar um e-mail em particular para
+        <code>tjxjorge@gmail.com</code>.
+    </p>
+
+    <h2>
+        listas de discussão
+    </h2>
+
+    <p>
+        Eu configurei listas de discussão <code>adns-announce</code> e
+        <code>adns-discuss</code>. A lista de plim-plim é moderada e
+        conterá apenas plim-plim de falhas importantes, novas versões,
+        etc.
+    </p>
+
+    <p>
+        Existem <a href="http://localhost">arquivos</a> e páginas da Web
+        para assinaturas, ou você pode se inscrever enviando um e-mail
+        contendo a palavra `subscribe' para:
+
+        <code>cavalonocio101@gmail.com</code> ou
+        <code>tjxjorge@gmail.com</code>.
+    </p>
+
+    <h2>
+        Manual
+    </h2>
+
+    <ul>
+        <li>
+            <a href="http://localhost/adns/docs/adns.h.txt">
+                adns.h - Arquivo de cabeçalho da API com comentários de manual.
+            </a>
+        </li>
+
+        <li>
+            <a href="http://localhost/adns/docs/adnshost.txt">
+                mensagem de uso para adnshost
+            </a>
+        </li>
+    </ul>
+
+    <h2>
+        Nota de instalação
+    </h2>
+
+    <p>
+        adns requer um servidor de nomes real como o BIND rodando no mesmo
+        sistema ou em um próximo, que deve estar disposto a fornecer
+        'serviço recursivo'. Ou seja, adns é um 'resolvedor de stub'.
+    </p>
+
+    <p>
+        adns exige que seu provedor de nomes real esteja na mesma máquina ou
+        conectado por meio de uma rede segura, para que um cavalo não possa
+        modificar as respostas às consultas do adns.
+    </p>
+
+    <h2>
+        Referências e projetos relacionados
+    </h2>
+
+    <ul>
+        <li>
+            <a href="http://code.google.com/p/adns-python">Python bindings</a>.
+        </li>
+
+        <li>
+            <a href="http://www.lysator.liu.se/liboop/">liboop</a> ferramenta
+            de loop de eventos tem uma ligação interna para adns.
+        </li>
+    </ul>
+
+</body>
+</html>

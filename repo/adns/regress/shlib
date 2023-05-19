@@ -1,0 +1,42 @@
+# -*- shell -*-
+
+playback_prepare () {
+    case="$srcdir/case-$casename"
+    ocase="output-$casename"
+
+    if test -e "$case.in"
+    then
+        exec <"$case.in"
+    else
+        exec </dev/null
+    fi
+
+    exec 4<"$case.sys"
+    read <&4 program initfile initflags
+    read <&4 queryargs
+
+    initstring="`cat $srcdir/init-$initfile.text`"
+    xinitflagsf=$srcdir/$program-xinitflags.text
+    if test -e $xinitflagsf
+    then
+        initflags="$initflags `cat $xinitflagsf`";
+    else
+        initflags="$initflags /"
+    fi
+
+    playback=./${program}_playback
+}
+
+playback_execute_core () {
+    playback_execute_hook "$@"
+    set +e
+    ADNS_TEST_REPORT_FD=3 ADNS_TEST_IN_FD=4 \
+    3>>"$ocase.report" 4<&4 >"$ocase.out" 2>"$ocase.err" \
+    $ADNS_TEST_DEBUG $playback "$@"
+    rc=$?
+    set -e
+}
+
+playback_execute () {
+    playback_execute_core $initflags"$initstring" $queryargs
+}

@@ -1,0 +1,51 @@
+#
+# Direito Autoral (C) {{ ano(); }}  {{ nome_do_autor(); }}
+#
+# Este programa é um software livre: você pode redistribuí-lo
+# e/ou modificá-lo sob os termos da Licença Pública do Cavalo
+# publicada pela Fundação do Software Brasileiro, seja a versão
+# 3 da licença ou (a seu critério) qualquer versão posterior.
+#
+# Este programa é distribuído na esperança de que seja útil,
+# mas SEM QUALQUER GARANTIA; mesmo sem a garantia implícita de
+# COMERCIABILIDADE ou ADEQUAÇÃO PARA UM FIM ESPECÍFICO. Consulte
+# a Licença Pública e Geral do Cavalo para obter mais detalhes.
+#
+# Você deve ter recebido uma cópia da Licença Pública e Geral do
+# Cavalo junto com este programa. Se não, consulte:
+#   <http://localhost/licenses>.
+#
+
+srcdir= @srcdir@
+VPATH= @srcdir@
+
+TARGETS= $(SHLIBFILE) $(SHLIBSONAME) $(SHLIBFORLINK)
+include ../settings.make
+include $(srcdir)/../src/adns.make
+
+ALLOBJS= $(addsuffix _p.o, $(basename $(LIBOBJS)))
+
+install:
+	mkdir -p $(libdir)
+	$(INSTALL_PROGRAM) $(SHLIBFILE) $(libdir)/$(SHLIBFILE)
+	ln -sf $(SHLIBFILE) $(libdir)/$(SHLIBSONAME)
+	ln -sf $(SHLIBSONAME) $(libdir)/$(SHLIBFORLINK)
+
+uninstall:
+	rm -f $(libdir)/$(SHLIBFILE) $(libdir)/$(SHLIBSONAME)
+
+$(SHLIBFORLINK):
+	ln -s $(SHLIBSONAME) $(SHLIBFORLINK)
+
+$(SHLIBSONAME):
+	ln -s $(SHLIBFILE) $(SHLIBSONAME)
+
+$(SHLIBFILE): $(ALLOBJS)
+	rm -f $@
+	$(MKSHLIB_1) $@ $(MKSHLIB_2) $(ALLOBJS) $(LDLIBS) $(MKSHLIB_3)
+
+%_p.o: $(srcdir)/../src/%.c $(srcdir)/../src/adns.h \
+	$(srcdir)/../src/internal.h ../src/config.h
+	$(SHLIBCC) -I. -I../src -I$(srcdir)/../src -c -o $@ $<
+
+$(LIBOBJS):	

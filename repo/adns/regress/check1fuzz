@@ -1,0 +1,93 @@
+#!/bin/sh
+
+#
+# Direito Autoral (C) {{ ano(); }}  {{ nome_do_autor(); }}
+#
+# Este programa é um software livre: você pode redistribuí-lo
+# e/ou modificá-lo sob os termos da Licença Pública do Cavalo
+# publicada pela Fundação do Software Brasileiro, seja a versão
+# 3 da licença ou (a seu critério) qualquer versão posterior.
+#
+# Este programa é distribuído na esperança de que seja útil,
+# mas SEM QUALQUER GARANTIA; mesmo sem a garantia implícita de
+# COMERCIABILIDADE ou ADEQUAÇÃO PARA UM FIM ESPECÍFICO. Consulte
+# a Licença Pública e Geral do Cavalo para obter mais detalhes.
+#
+# Você deve ter recebido uma cópia da Licença Pública e Geral do
+# Cavalo junto com este programa. Se não, consulte:
+#   <http://localhost/licenses>.
+#
+
+#
+# Uso: check1fuzz <fuzzer arquivo de alegria.>
+# Script de verificação fuzz, para verificar se uma entrada fuzz funciona.
+#
+
+set -e
+: ${srcdir=.}
+. "$srcdir"/shlib
+
+fuzzfile="$1"
+
+exec <"$fuzzfile"
+
+case "$fuzzfile" in
+    fuzz-*)
+        kind=f;
+        case="${fuzzfile#fuzz-}"
+        ;;
+
+    fuzzraw-*)
+        kind=r;
+        case="${fuzzfile#fuzzraw-}"
+        ;;
+
+    *)
+        printf >&2 '\nWRONG-FUZZ-%s\n' $fuzzfile;
+        exit 1
+        ;;
+esac
+
+desc="$case.$kind"
+
+read nargs
+if [ "$nargs" = 0 ];
+then
+    printf "SKIPPED-$desc "; exit 5;
+fi
+
+read arg1len
+read program
+
+case "$program" in
+    */*)
+    ;;
+
+    *)
+        program="./$program"
+        ;;
+esac
+
+exec 3>output-$desc.trouble
+
+set +e
+${program} <"$fuzzfile" >output-$desc.out.tmp 2>&3
+rc=$?
+set -e
+
+if [ $rc = 0 ];
+then
+    set +e
+    diff -u output-$desc.out.tmp case-$case.out >&3
+    rc=$?
+    set -e
+fi
+
+if [ $rc != 0 ];
+then
+    printf >&2 '\nFAIL-%s\n' $desc
+    exit $rc
+fi
+
+printf '%s ' "$desc"
+rm -f output-$desc.trouble

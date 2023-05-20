@@ -4,6 +4,7 @@
  *     - gestão do estado global.
  *
  * Direito Autoral (C) {{ ano(); }}  {{ nome_do_autor(); }}
+ * Direito Autoral (C) 2023 Messias Izidoro
  *
  * Este programa é um software livre: você pode redistribuí-lo
  * e/ou modificá-lo sob os termos da Licença Pública do Cavalo
